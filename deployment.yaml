@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-kubernetes-deployment # Название нашего объекта Deployment
+spec:
+  replicas: 1 # Запускаем только один экземпляр (Pod) нашего приложения
+  selector:
+    matchLabels:
+      app: go-kubernetes # Этот селектор связывает Deployment с Pod'ами по метке
+  template: # Это шаблон для создания Pod'ов
+    metadata:
+      labels:
+        app: go-kubernetes # Ставим метку 'app=go-kubernetes' на каждый Pod
+    spec:
+      containers:
+        - name: go-kubernetes-container # Название контейнера внутри Pod'а
+          image: go-kubernetes:last # !!! Указываем наш образ, загруженный в Kind
+          # Для Kind и локально загруженных образов ВАЖНО указать политику:
+          # IfNotPresent - использовать локальный образ, если есть, иначе пытаться скачать.
+          # Never - всегда использовать только локальный образ, никогда не скачивать.
+          # Обе подходят, т.к. мы образ уже загрузили. Используем IfNotPresent.
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080 # Порт, который слушает наше Go-приложение внутри контейнера (из main.go)
